@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Recommendation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        // Function to fetch search suggestions dynamically
+        async function fetchSuggestions(query) {
+            if (query.length > 0) {
+                const response = await fetch(`/search?q=${query}`);
+                const data = await response.json();
+                const suggestionList = document.getElementById('suggestions');
+                suggestionList.innerHTML = '';
+                data.suggestions.forEach(suggestion => {
+                    const li = document.createElement('li');
+                    li.textContent = suggestion;
+                    suggestionList.appendChild(li);
+                });
+            } else {
+                document.getElementById('suggestions').innerHTML = '';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Recommendation System</h1>
+
+        <!-- Search bar for dynamic product suggestions -->
+        <div class="search-bar">
+            <label for="search">Search Products:</label>
+            <input 
+                type="text" 
+                id="search" 
+                placeholder="Type a product name..." 
+                oninput="fetchSuggestions(this.value)"
+            >
+            <ul id="suggestions" class="suggestion-list"></ul>
+        </div>
+
+        <form action="/" method="POST">
+            <label for="user_id">Enter User ID:</label>
+            <input type="text" id="user_id" name="user_id" required>
+            <button type="submit">Get Recommendation</button>
+        </form>        
+
+        {% if recommendation %}
+    <h2>Top Recommendations for User {{ request.form['user_id'] }}:</h2>
+    <div class="recommendation-list">
+        {% for product in recommendation %}
+            <div class="recommendation-item">
+                <p>{{ product }}</p>  <!-- Display the product name directly -->
+            </div>
+        {% endfor %}
+    </div>
+{% elif error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+    </div>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .recommendation-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .recommendation-item {
+            width: 48%;
+            background: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .recommendation-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        #suggestions {
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0;
+            background: #fff;
+            border: 1px solid #ccc;
+            max-height: 100px;
+            overflow-y: auto;
+            border-radius: 5px;
+        }
+        #suggestions li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        #suggestions li:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</body>
+</html>
